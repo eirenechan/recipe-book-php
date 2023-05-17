@@ -1,20 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <title>New Recipe Added</title>
-</head>
-<body>
-  <div class="my-5 mx-auto w-75">
-    <div class="btn-group mb-4">
-      <a href="index.php" class="btn btn-dark">All Recipes</a>
-      <a href="search.php" class="btn btn-secondary">Search Recipe</a>
-      <a href="add.php" class="btn btn-dark">Add Recipe</a>
-    </div>
-
-    <?php
+<?php
       require_once('db.php');
 
       if (isset($_POST['name'])) {
@@ -33,12 +17,12 @@
         $query = mysqli_query($conn, $sql);
         if($query) {
           $recipe_id = $conn->insert_id;
-          echo "<h4 class='display-5 my-3'>New Recipe is saved!</h4>";
+          echo "<h4 class='my-3'>Recipe for {$name} is saved!</h4>";
 
 // HANDLE INGREDIENTS
 
-          foreach ($new_ingredients_array as $i=>$new_ingredient) {
-            if ($new_ingredient == "") {
+          foreach ($new_ingredients_array as $new_ingredient) {
+            if (trim($new_ingredient) == "") {
               continue;
             }
             $new_ingredient = strtolower($new_ingredient);
@@ -82,8 +66,8 @@
 
 // HANDLE UTENSILS
 
-          foreach ($new_utensils_array as $i=>$new_utensil) {
-            if ($new_utensil == "") {
+          foreach ($new_utensils_array as $new_utensil) {
+            if (trim($new_utensil) == "") {
               continue;
             }
             $new_utensil = strtolower($new_utensil);
@@ -126,7 +110,7 @@
 // HANDLE STEPS
           $i = 1;
           foreach ($steps_array as $step) {
-            if ($step !== "") {
+            if (trim($step) !== "") {
               $sql = "INSERT INTO `steps` (`recipe_id`, `sequence`, `description`) VALUES ($recipe_id, $i, '$step')";
               $query = mysqli_query($conn, $sql);
               ++$i;
@@ -139,6 +123,3 @@
 
       }
     ?>
-  </div>
-</body>
-</html>

@@ -1,36 +1,65 @@
+<?php session_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <title>Add a Recipe</title>
+  <title>Edit a Recipe</title>
 </head>
 <body class="bg-light">
 <div class="my-5 mx-auto w-75">
   <?php
-    include('create.php');
+
+    // include('update.php');
+    require_once('db.php');
+
+    // get recipe information
+    if (isset($_GET["recipe_id"])) {
+      $recipe_id = $_GET["recipe_id"];
+
+      $sql = "SELECT `name` FROM recipes WHERE `id`= '$recipe_id'";
+      $result = mysqli_query($conn, $sql);
+      $row = mysqli_fetch_assoc($result);
+      $recipe_name = $row['name'];
+    }
   ?>
   <div class="btn-group mb-4">
     <a href="index.php" class="btn btn-dark">All Recipes</a>
     <a href="search.php" class="btn btn-secondary">Search Recipe</a>
     <a href="add.php" class="btn btn-dark">Add Recipe</a>
-    <?php if (isset($_POST['name'])) {
-      echo "<a href='show.php?recipe_id={$recipe_id}' class='btn btn-outline-secondary'>View New Recipe</a>";
-    }
-    ?>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">Back</a>
   </div>
 
-    <form action="" method="post">
+    <form action="update.php?recipe_id=<?php echo $recipe_id; ?>" method="post">
       <h4 class="display-5 my-3">Recipe Name</h4>
-      <input type="" name="name" id="name" class="form-control" required/> <br>
+      <input type="" name="name" class="form-control" value="<?php echo $recipe_name; ?>" required/> <br>
+      <input type="hidden" name="id" class="form-control" value="<?php echo $recipe_id; ?>" />
 
 <!-- HANDLE INGREDIENTS -->
       <h4 class="display-5 my-3">Ingredients</h4>
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-gap: 16px;">
         <?php
-        require_once('db.php');
 
+        // get recipe ingredients
+        $sql = "SELECT i.name
+                FROM ingredients i
+                JOIN recipe_ingredients j ON i.id = j.ingredient_id
+                WHERE j.recipe_id = {$recipe_id}";
+
+        $result = mysqli_query($conn, $sql);
+        $current_ingredients = [];
+
+        if ($result) {
+          while($row = mysqli_fetch_array($result)) {
+            array_push($current_ingredients, $row['name']);
+          }
+        }
+
+        $_SESSION["current_ingredients"] = $current_ingredients;
+
+        // display ingredients
         $sql = "SELECT `category`, GROUP_CONCAT(DISTINCT `name` ORDER BY `name` ASC SEPARATOR ', ') AS `ingredients` FROM `ingredients` GROUP BY `category` ORDER BY `category` IS NULL";
 
         $result = mysqli_query($conn, $sql);
@@ -47,13 +76,16 @@
           $ingredients = $row['ingredients'];
           $ingredients_array = explode(", ", $ingredients);
 
+          // check the box if the ingredient is already selected
           foreach ($ingredients_array as $ingredient) {
-            echo "<div class='form-check'>
-                    <input class='form-check-input' type='checkbox' name='ingredients[]' id='{$ingredient}' value='{$ingredient}' >
-                    <label class='form-check-label' for='{$ingredient}'>
-                      " . ucfirst($ingredient) . "
-                    </label>
-                  </div>";
+            echo "<div class='form-check'>";
+            if (in_array($ingredient, $current_ingredients)) {
+              echo "<input class='form-check-input' type='checkbox' name='ingredients[]' id='{$ingredient}' value='{$ingredient}' checked>";
+            } else {
+              echo "<input class='form-check-input' type='checkbox' name='ingredients[]' id='{$ingredient}' value='{$ingredient}' >";
+            }
+            echo "<label class='form-check-label' for='{$ingredient}'>" . ucfirst($ingredient) . "</label>
+                </div>";
           }
 
           echo "</div></div>";
@@ -87,15 +119,38 @@
       <h4 class="display-5 my-3">Utensils</h4>
       <div class='row border rounded-1 py-3 px-4 my-3 mx-auto'>
         <?php
+
+        // get recipe utensils
+        $sql = "SELECT u.name
+                FROM utensils u
+                JOIN recipe_utensils j ON u.id = j.utensil_id
+                WHERE j.recipe_id = {$recipe_id}";
+
+        $result = mysqli_query($conn, $sql);
+        $current_utensils = [];
+
+        if ($result) {
+          while($row = mysqli_fetch_array($result)) {
+            array_push($current_utensils, $row['name']);
+          }
+        }
+
+        $_SESSION["current_utensils"] = $current_utensils;
+
+        // display utensils
           $sql = "SELECT `name` FROM `utensils` ORDER BY `name` ASC";
           $result = mysqli_query($conn, $sql);
 
           while($row = mysqli_fetch_array($result)) {
             $utensil = $row["name"];
-            echo "<div class='form-check col-lg-3 col-sm-4 col-6'>
-                    <input class='form-check-input' type='checkbox' name='utensils[]' id='{$utensil}' value='{$utensil}' >
-                    <label class='form-check-label' for='{$utensil}'>" . ucfirst($utensil) . "</label>
-                  </div>";
+            echo "<div class='form-check col-lg-3 col-sm-4 col-6'>";
+            if (in_array($utensil, $current_utensils)) {
+              echo "<input class='form-check-input' type='checkbox' name='utensils[]' id='{$utensil}' value='{$utensil}' checked>";
+            } else {
+              echo "<input class='form-check-input' type='checkbox' name='utensils[]' id='{$utensil}' value='{$utensil}' >";
+            }
+            echo "<label class='form-check-label' for='{$utensil}'>" . ucfirst($utensil) . "</label>
+                </div>";
           }
         ?>
       </div>
@@ -114,47 +169,27 @@
 <!-- HANDLE STEPS -->
       <h4 class="display-5 my-3">Steps</h4>
       <?php
-      function printStepBoxes($number) {
-        for ($index = $number; $index < ($number + 3); $index++) {
+        // get recipe steps
+        $sql = "SELECT `description` FROM `steps` WHERE `recipe_id` = {$recipe_id} ORDER BY `sequence` ASC";
+        $result = mysqli_query($conn, $sql);
+        $current_steps = [];
+
+        while($row = mysqli_fetch_array($result)) {
+          array_push($current_steps, $row['description']);
+        }
+
+        $no_of_steps = count($current_steps);
+        $_SESSION["no_of_steps"] = $no_of_steps;
+
+        for ($index = 0; $index < ($no_of_steps + 3); $index++) {
           echo "<div class='row mb-3 my-2'>
                   <label for='step' class='col-2 col-form-label'>Step " . $index + 1 . ": </label>
                   <div class='col'>
-                    <textarea name='steps[]' id='step' class='form-control'></textarea>
+                    <textarea name='steps[]' id='step' class='form-control'>" . $current_steps[$index] ."</textarea>
                   </div>
                 </div>";
         }
-      }
-
-      printStepBoxes(0);
       ?>
-
-      <div id="button1" onclick="showMore1()" class="btn btn-link btn-sm px-0">More Steps</div><br>
-
-      <div id="moresteps1" class="visually-hidden">
-        <?php
-          printStepBoxes(3);
-        ?>
-      </div>
-
-      <div id="button2" onclick="showMore2()" class="btn btn-link btn-sm px-0 visually-hidden">More Steps</div><br>
-
-      <div id="moresteps2" class="visually-hidden">
-        <?php
-          printStepBoxes(6);
-        ?>
-      </div>
-
-      <script>
-        function showMore1() {
-          document.getElementById("moresteps1").classList.remove("visually-hidden");
-          document.getElementById("button1").classList.add("visually-hidden");
-          document.getElementById("button2").classList.remove("visually-hidden");
-        }
-        function showMore2() {
-          document.getElementById("moresteps2").classList.remove("visually-hidden");
-          document.getElementById("button2").classList.add("visually-hidden");
-        }
-      </script>
 
       <div class="d-grid">
         <input type="submit" name="submit" value="Save Recipe" class="btn btn-lg btn-dark my-5"/>
