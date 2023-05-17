@@ -72,7 +72,6 @@
 
   <!-- DISPLAY STEPS -->
     <h5>Steps</h5>
-
     <table class="table" style="width:100%">
       <thead>
         <tr>
@@ -93,7 +92,6 @@
         ?>
       </tbody>
     </table>
-
   </div>
 </body>
 </html>

@@ -7,58 +7,55 @@
   <title>Add a Recipe</title>
 </head>
 <body class="bg-light">
-<div class="my-5 mx-auto w-75">
-  <?php
-    include('create.php');
-  ?>
-  <div class="btn-group mb-4">
-    <a href="index.php" class="btn btn-dark">All Recipes</a>
-    <a href="search.php" class="btn btn-secondary">Search Recipe</a>
-    <a href="add.php" class="btn btn-dark">Add Recipe</a>
-    <?php if (isset($_POST['name'])) {
-      echo "<a href='show.php?recipe_id={$recipe_id}' class='btn btn-outline-secondary'>View New Recipe</a>";
-    }
+  <div class="my-5 mx-auto w-75">
+    <?php
+      include('create.php');
     ?>
-  </div>
+    <div class="btn-group mb-4">
+      <a href="index.php" class="btn btn-dark">All Recipes</a>
+      <a href="search.php" class="btn btn-secondary">Search Recipe</a>
+      <a href="add.php" class="btn btn-dark">Add Recipe</a>
+      <?php if (isset($_POST['name'])) {
+        echo "<a href='show.php?recipe_id={$recipe_id}' class='btn btn-outline-secondary'>View New Recipe</a>";
+      } ?>
+    </div>
 
     <form action="" method="post">
       <h4 class="display-5 my-3">Recipe Name</h4>
       <input type="" name="name" id="name" class="form-control" required/> <br>
 
-<!-- HANDLE INGREDIENTS -->
+  <!-- HANDLE INGREDIENTS -->
       <h4 class="display-5 my-3">Ingredients</h4>
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-gap: 16px;">
         <?php
-        require_once('db.php');
+          require_once('db.php');
 
-        $sql = "SELECT `category`, GROUP_CONCAT(DISTINCT `name` ORDER BY `name` ASC SEPARATOR ', ') AS `ingredients` FROM `ingredients` GROUP BY `category` ORDER BY `category` IS NULL";
+          $sql = "SELECT `category`, GROUP_CONCAT(DISTINCT `name` ORDER BY `name` ASC SEPARATOR ', ') AS `ingredients` FROM `ingredients` GROUP BY `category` ORDER BY `category` IS NULL";
 
-        $result = mysqli_query($conn, $sql);
-        $categories = array();
+          $result = mysqli_query($conn, $sql);
+          $categories = array();
 
-        while($row = mysqli_fetch_array($result)) {
+          while($row = mysqli_fetch_array($result)) {
 
-          $category = $row['category'] === null ? "Others" : ucwords($row['category']);
-          array_push($categories, $category);
-          echo "<div style='display:flex'>
-                  <div class='border rounded-1 p-3 w-100' >
-                  <h6>{$category}</h6>";
+            $category = $row['category'] === null ? "Others" : ucwords($row['category']);
+            array_push($categories, $category);
+            echo "<div style='display:flex'>
+                    <div class='border rounded-1 p-3 w-100' >
+                    <h6>{$category}</h6>";
 
-          $ingredients = $row['ingredients'];
-          $ingredients_array = explode(", ", $ingredients);
+            $ingredients = $row['ingredients'];
+            $ingredients_array = explode(", ", $ingredients);
 
-          foreach ($ingredients_array as $ingredient) {
-            echo "<div class='form-check'>
-                    <input class='form-check-input' type='checkbox' name='ingredients[]' id='{$ingredient}' value='{$ingredient}' >
-                    <label class='form-check-label' for='{$ingredient}'>
-                      " . ucfirst($ingredient) . "
-                    </label>
-                  </div>";
+            foreach ($ingredients_array as $ingredient) {
+              echo "<div class='form-check'>
+                      <input class='form-check-input' type='checkbox' name='ingredients[]' id='{$ingredient}' value='{$ingredient}' >
+                      <label class='form-check-label' for='{$ingredient}'>
+                        " . ucfirst($ingredient) . "
+                      </label>
+                    </div>";
+            }
+            echo "</div></div>";
           }
-
-          echo "</div></div>";
-        }
-
         ?>
       </div>
 
@@ -83,7 +80,7 @@
         ?>
       </div><br>
 
-<!-- HANDLE UTENSILS -->
+  <!-- HANDLE UTENSILS -->
       <h4 class="display-5 my-3">Utensils</h4>
       <div class='row border rounded-1 py-3 px-4 my-3 mx-auto'>
         <?php
@@ -111,38 +108,27 @@
         ?>
       </div><br>
 
-<!-- HANDLE STEPS -->
+  <!-- HANDLE STEPS -->
       <h4 class="display-5 my-3">Steps</h4>
       <?php
-      function printStepBoxes($number) {
-        for ($index = $number; $index < ($number + 3); $index++) {
-          echo "<div class='row mb-3 my-2'>
-                  <label for='step' class='col-2 col-form-label'>Step " . $index + 1 . ": </label>
-                  <div class='col'>
-                    <textarea name='steps[]' id='step' class='form-control'></textarea>
-                  </div>
-                </div>";
+        function printStepBoxes($number) {
+          for ($index = $number; $index < ($number + 3); $index++) {
+            echo "<div class='row mb-3 my-2'>
+                    <label for='step' class='col-2 col-form-label'>Step " . $index + 1 . ": </label>
+                    <div class='col'>
+                      <textarea name='steps[]' id='step' class='form-control'></textarea>
+                    </div>
+                  </div>";
+          }
         }
-      }
-
-      printStepBoxes(0);
+        printStepBoxes(0);
       ?>
 
       <div id="button1" onclick="showMore1()" class="btn btn-link btn-sm px-0">More Steps</div><br>
-
-      <div id="moresteps1" class="visually-hidden">
-        <?php
-          printStepBoxes(3);
-        ?>
-      </div>
+      <div id="moresteps1" class="visually-hidden"><?php printStepBoxes(3); ?></div>
 
       <div id="button2" onclick="showMore2()" class="btn btn-link btn-sm px-0 visually-hidden">More Steps</div><br>
-
-      <div id="moresteps2" class="visually-hidden">
-        <?php
-          printStepBoxes(6);
-        ?>
-      </div>
+      <div id="moresteps2" class="visually-hidden"><?php printStepBoxes(6); ?></div>
 
       <script>
         function showMore1() {

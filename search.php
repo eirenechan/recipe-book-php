@@ -7,7 +7,6 @@
   <title>Find Recipes</title>
 </head>
 <body class="bg-light">
-
   <div class="my-5 mx-auto w-75">
     <div class="btn-group mb-4">
       <a href="index.php" class="btn btn-dark">All Recipes</a>
@@ -36,10 +35,10 @@
 
     if (isset($_GET['submit'])) {
       $sql = "SELECT r.name AS r_name, r.id, i.name AS i_name
-      FROM recipes r
-      JOIN recipe_ingredients j ON r.id = j.recipe_id
-      JOIN ingredients i ON i.id = j.ingredient_id
-      WHERE i.name LIKE '%$keyword%'";
+              FROM recipes r
+              JOIN recipe_ingredients j ON r.id = j.recipe_id
+              JOIN ingredients i ON i.id = j.ingredient_id
+              WHERE i.name LIKE '%$keyword%'";
 
       $result = mysqli_query($conn, $sql);
       if (mysqli_num_rows($result) > 0) {
@@ -49,7 +48,6 @@
           echo "<li class='list-group-item'>
                   <a href='show.php?keyword={$keyword}&recipe_id=". $row['id'] . "' class='btn btn-link text-dark'>" . $row['r_name'] . "</a>
                 </li>";
-
         }
         echo "</ul>";
       } else {
@@ -57,7 +55,6 @@
       }
     }
     ?>
-
   </div>
 </body>
 </html>

@@ -8,14 +8,14 @@
 </head>
 <body class="bg-light">
   <div class="my-5 mx-auto w-75">
-  <div class="btn-group mb-4">
-    <a href="index.php" class="btn btn-dark">All Recipes</a>
-    <a href="search.php" class="btn btn-secondary">Search Recipe</a>
-    <a href="add.php" class="btn btn-dark">Add Recipe</a>
-  </div>
-  <h4 class="display-5 my-3">All Recipes</h4>
-  <?php
-    require_once('db.php');
+    <div class="btn-group mb-4">
+      <a href="index.php" class="btn btn-dark">All Recipes</a>
+      <a href="search.php" class="btn btn-secondary">Search Recipe</a>
+      <a href="add.php" class="btn btn-dark">Add Recipe</a>
+    </div>
+    <h4 class="display-5 my-3">All Recipes</h4>
+    <?php
+      require_once('db.php');
       $sql = "SELECT * FROM `recipes`";
       $result = mysqli_query($conn, $sql);
       if (mysqli_num_rows($result) > 0) {
@@ -28,8 +28,6 @@
         echo "</ul>";
       }
     ?>
-</table>
-
   </div>
 </body>
 </html>

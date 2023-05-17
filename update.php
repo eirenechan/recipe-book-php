@@ -69,7 +69,6 @@
             }
           }
 
-
           $current_ingredients = $_SESSION["current_ingredients"];
 
           foreach ($current_ingredients as $current_ingredient) {
@@ -79,7 +78,6 @@
                       FROM `recipe_ingredients` j
                       JOIN `ingredients` i on i.id = j.ingredient_id
                       WHERE i.name = '$current_ingredient' AND j.recipe_id = '$recipe_id'";
-
               $result = mysqli_query($conn, $sql);
 
             }
@@ -139,7 +137,6 @@
                       FROM `recipe_utensils` j
                       JOIN `utensils` u on u.id = j.utensil_id
                       WHERE u.name = '$current_utensil' AND j.recipe_id = '$recipe_id'";
-
               $result = mysqli_query($conn, $sql);
 
             }
@@ -162,7 +159,6 @@
               }
             }
           }
-
 
 // HANDLE STEPS
           $i = 1;
@@ -187,13 +183,12 @@
           }
 
           echo "<h4 class='my-3'>Recipe for {$recipe_name} is updated!</h4>";
+
         } else {
           echo "Failed to save recipe. Please try again.";
         }
-
       }
     ?>
-
   </div>
 </body>
 </html>
